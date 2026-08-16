@@ -1,76 +1,57 @@
 spring:
-  application:
-    name: api-gateway
-  config:
-    import: "optional:configserver:http://localhost:8888"
+    application:
+      name: api-gateway
+    config:
+      import: "optional:configserver:http://localhost:8888"
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
+    cloud:
+      gateway:
+        server:
+          webflux:
+            routes:
+              - id: order-service
+                uri: lb://ORDER-SERVICE
+                predicates:
+                  - Path=/api/orders/**
+                filters:
+                  - StripPrefix=1
+                  - name: RequestRateLimiter
+                    args:
+                      redis-rate-limiter.replenishRate: 5
+                      redis-rate-limiter.burstCapacity: 10
+                      key-resolver: "#{@ipKeyResolver}"
 
-  cloud:
-    gateway:
-      server:
-        webflux:
-          routes:
-            - id: order-service
-              uri: lb://ORDER-SERVICE
-              predicates:
-                - Path=/api/orders/**
-              filters:
-                - StripPrefix=1
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 5
-                    redis-rate-limiter.burstCapacity: 10
-                    key-resolver: "#{@ipKeyResolver}"
+              - id: payment-service
+                uri: lb://PAYMENT-SERVICE
+                predicates:
+                  - Path=/api/payments/**
+                filters:
+                  - StripPrefix=1
 
-            - id: payment-service
-              uri: lb://PAYMENT-SERVICE
-              predicates:
-                - Path=/api/payments/**
-              filters:
-                - StripPrefix=1
+              - id: catalog-service
+                uri: lb://CATALOG-SERVICE
+                predicates:
+                  - Path=/api/products/**
+                filters:
+                  - StripPrefix=1
 
-            - id: catalog-service
-              uri: lb://CATALOG-SERVICE
-              predicates:
-                - Path=/api/products/**
-              filters:
-                - StripPrefix=1
+              - id: delivery-service
+                uri: lb://DELIVERY-SERVICE
+                predicates:
+                  - Path=/api/deliveries/**
+                filters:
+                  - StripPrefix=1
 
-            - id: delivery-service
-              uri: lb://DELIVERY-SERVICE
-              predicates:
-                - Path=/api/deliveries/**
-              filters:
-                - StripPrefix=1
+              - id: pickup-service
+                uri: lb://PICKUP-SERVICE
+                predicates:
+                  - Path=/api/pickup-points/**
+                filters:
+                  - StripPrefix=1
 
-            - id: pickup-service
-              uri: lb://PICKUP-SERVICE
-              predicates:
-                - Path=/api/pickup-points/**
-              filters:
-                - StripPrefix=1
-
-            - id: refund-service
-              uri: lb://REFUND-SERVICE
-              predicates:
-                - Path=/api/refunds/**
-              filters:
-                - StripPrefix=1
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
-
-server:
-  port: 8080
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: gateway,health
+              - id: refund-service
+                uri: lb://REFUND-SERVICE
+                predicates:
+                  - Path=/api/refunds/**
+                filters:
+                  - StripPrefix=1
