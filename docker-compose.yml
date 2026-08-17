@@ -98,9 +98,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Deureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka"
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_DATA_REDIS_HOST: redis
 
   order-service:
@@ -117,9 +116,8 @@ services:
     ports:
       - "8081:8081"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Deureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka"
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/flipkart_orders?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_PASSWORD: root123
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
@@ -134,9 +132,8 @@ services:
     ports:
       - "8082:8082"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Deureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka"
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
   notification-service:
@@ -149,9 +146,8 @@ services:
     ports:
       - "8083:8083"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Deureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka"
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
   catalog-service:
@@ -164,9 +160,8 @@ services:
     ports:
       - "8084:8084"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Deureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka"
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/flipkart_catalog
 
   delivery-service:
@@ -183,9 +178,8 @@ services:
     ports:
       - "8085:8085"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Deureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka"
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/flipkart_delivery?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_PASSWORD: root123
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
@@ -200,9 +194,8 @@ services:
     ports:
       - "8086:8086"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Deureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka"
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/flipkart_pickup
 
   refund-service:
@@ -219,9 +212,8 @@ services:
     ports:
       - "8087:8087"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Deureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka"
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/flipkart_refunds?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_PASSWORD: root123
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
