@@ -9,3 +9,4 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface PickupPointRepository extends MongoRepository<PickupPoint, String> {
 
     GeoResults<PickupPoint> findByLocationNear(Point point, Distance distance);
+}
