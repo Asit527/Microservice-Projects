@@ -64,6 +64,7 @@ services:
     ports:
       - "9411:9411"
 
+
   # ---------------- Platform ----------------
 
   config-server:
@@ -75,26 +76,47 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xmx256m -Dserver.port=8888"
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
 
   discovery-server:
     build: ./discovery-server
     container_name: discovery-server
     restart: unless-stopped
     depends_on:
-      - config-server
+      config-server:
+        condition: service_healthy
     ports:
       - "8761:8761"
     environment:
       JAVA_TOOL_OPTIONS: "-Xmx256m -Dserver.port=8761"
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+
+  # ---------------- API Gateway ----------------
 
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
     restart: unless-stopped
     depends_on:
-      - discovery-server
-      - redis
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      redis:
+        condition: service_started
     ports:
       - "8080:8080"
     environment:
@@ -102,13 +124,18 @@ services:
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_DATA_REDIS_HOST: redis
 
+
+  # ---------------- Order Service ----------------
+
   order-service:
     build: ./order-service
     container_name: order-service
     restart: unless-stopped
     depends_on:
+      config-server:
+        condition: service_healthy
       discovery-server:
-        condition: service_started
+        condition: service_healthy
       mysql:
         condition: service_healthy
       kafka:
@@ -122,13 +149,20 @@ services:
       SPRING_DATASOURCE_PASSWORD: root123
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
+
+  # ---------------- Payment Service ----------------
+
   payment-service:
     build: ./payment-service
     container_name: payment-service
     restart: unless-stopped
     depends_on:
-      - discovery-server
-      - kafka
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     ports:
       - "8082:8082"
     environment:
@@ -136,13 +170,20 @@ services:
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
+
+  # ---------------- Notification Service ----------------
+
   notification-service:
     build: ./notification-service
     container_name: notification-service
     restart: unless-stopped
     depends_on:
-      - discovery-server
-      - kafka
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     ports:
       - "8083:8083"
     environment:
@@ -150,13 +191,20 @@ services:
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
+
+  # ---------------- Catalog Service ----------------
+
   catalog-service:
     build: ./catalog-service
     container_name: catalog-service
     restart: unless-stopped
     depends_on:
-      - discovery-server
-      - mongodb
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
     ports:
       - "8084:8084"
     environment:
@@ -164,13 +212,18 @@ services:
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/flipkart_catalog
 
+
+  # ---------------- Delivery Service ----------------
+
   delivery-service:
     build: ./delivery-service
     container_name: delivery-service
     restart: unless-stopped
     depends_on:
+      config-server:
+        condition: service_healthy
       discovery-server:
-        condition: service_started
+        condition: service_healthy
       mysql:
         condition: service_healthy
       kafka:
@@ -184,13 +237,20 @@ services:
       SPRING_DATASOURCE_PASSWORD: root123
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
+
+  # ---------------- Pickup Service ----------------
+
   pickup-service:
     build: ./pickup-service
     container_name: pickup-service
     restart: unless-stopped
     depends_on:
-      - discovery-server
-      - mongodb
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
     ports:
       - "8086:8086"
     environment:
@@ -198,13 +258,18 @@ services:
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/flipkart_pickup
 
+
+  # ---------------- Refund Service ----------------
+
   refund-service:
     build: ./refund-service
     container_name: refund-service
     restart: unless-stopped
     depends_on:
+      config-server:
+        condition: service_healthy
       discovery-server:
-        condition: service_started
+        condition: service_healthy
       mysql:
         condition: service_healthy
       kafka:
@@ -217,6 +282,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/flipkart_refunds?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_PASSWORD: root123
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
+
+# ---------------- Volumes ----------------
 
 volumes:
   mysql-data:
